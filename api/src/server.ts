@@ -1,13 +1,12 @@
-import AdminJSExpress from '@adminjs/express'
+import AdminJSExpress from "@adminjs/express";
 import { Database, Resource } from '@adminjs/mongoose';
-import AdminJS, { AdminJSOptions } from 'adminjs'
-import dotenv from "dotenv"
-import express from 'express'
+import AdminJS, { AdminJSOptions } from 'adminjs';
+import dotenv from "dotenv";
+import express from 'express';
 import { connect } from 'mongoose';
-import { Company } from './company/company.entity.ts';
-import Connect from 'connect-pg-simple';
-import session from 'express-session'
-import { companyRouter } from './company/company.router.ts';
+import { companyRouter } from './company/company.router.js';
+import { Company, CompanyResource } from "./company/company.entity.js";
+import bodyParser from "body-parser"
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -31,10 +30,10 @@ AdminJS.registerAdapter({
 
 export const start = async () => {
     const app = express()
-    await connect(process.env.DATABASE_URL)
+    await connect(process.env.DATABASE_URL!)
 
     const adminOptions: AdminJSOptions = {
-        resources: [Company],
+        resources: [CompanyResource],
     }
     const admin = new AdminJS(adminOptions)
 
@@ -53,9 +52,9 @@ export const start = async () => {
             name: 'adminjs',
         }
     )
-    app.use(admin.options.rootPath, adminRouter)
+    app.use('/test-endpoint', bodyParser.json(), companyRouter)
     app.use(express.static('../ui/build'))
-    app.use('/test-endpoint', companyRouter)
+    app.use(admin.options.rootPath, adminRouter)
 
     app.listen(PORT, () => {
         console.log(`AdminJS started on http://localhost:${PORT}${admin.options.rootPath}`)
